@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Catch the Ideas - Varsha Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/style.css" />
+    <link rel="stylesheet" href="/src/game.css" />
+  </head>
+  <body>
+    <canvas id="game-bg"></canvas>
+
+    <div class="overlay">
+
+      <!-- NAVBAR -->
+      <nav class="navbar" id="navbar">
+        <a href="/" class="nav-logo">
+          <div class="logo-dot"></div>
+          <span>...<span class="logo-accent">.</span></span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="/#home">Home</a></li>
+          <li><a href="/#services">Services</a></li>
+          <li><a href="/#about">About</a></li>
+          <li><a href="/#contact">Contact</a></li>
+          <li><a href="/journey.html" class="nav-journey-link">⛵ Life Journey</a></li>
+          <li><a href="/game.html" class="nav-game-link">🎮 Game</a></li>
+          <li><a href="/boat_game.html" class="nav-game-link" style="color: #00d2ff;">🚤 Boat Game</a></li>
+        </ul>
+        <a href="/#contact" class="nav-cta">Get in Touch</a>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+          <span></span><span></span><span></span>
+        </button>
+      </nav>
+
+      <!-- MOBILE MENU -->
+      <div class="mobile-menu" id="mobileMenu">
+        <ul>
+          <li><a href="/#home" class="mobile-link">Home</a></li>
+          <li><a href="/#services" class="mobile-link">Services</a></li>
+          <li><a href="/#about" class="mobile-link">About</a></li>
+          <li><a href="/#contact" class="mobile-link">Contact</a></li>
+          <li><a href="/journey.html" class="mobile-link mobile-journey-link">⛵ Life Journey</a></li>
+          <li><a href="/game.html" class="mobile-link mobile-game-link">🎮 Game</a></li>
+          <li><a href="/boat_game.html" class="mobile-link mobile-game-link" style="color: #00d2ff;">🚤 Boat Game</a></li>
+        </ul>
+      </div>
+
+      <!-- GAME UI -->
+      <div class="game-hud">
+        <div class="hud-item">Score: <span id="scoreVal" class="gradient-text">0</span></div>
+        <div class="hud-item">Time: <span id="timeVal" class="gradient-text">60</span>s</div>
+      </div>
+
+      <!-- GAME MODALS -->
+      <div class="game-modal active" id="startModal">
+        <div class="modal-content reveal visible">
+          <span class="section-tag">Mini Game</span>
+          <h2 class="section-title">Catch the<br/><span class="gradient-text">Ideas</span></h2>
+          <p class="modal-desc">Click on the floating shapes before time runs out to capture brilliant ideas!</p>
+          <button class="btn btn-primary btn-large mt-24" id="startBtn">
+            Start Em' Up!
+          </button>
+        </div>
+      </div>
+
+      <div class="game-modal" id="gameOverModal">
+        <div class="modal-content reveal visible">
+          <span class="section-tag">Time's Up!</span>
+          <h2 class="section-title">Final Score: <br/><span class="gradient-text" id="finalScoreVal">0</span></h2>
+          <p class="modal-desc">Great job catching those brilliant ideas!</p>
+          <button class="btn btn-primary btn-large mt-24" id="restartBtn">
+            Play Again
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <script type="module" src="/src/game.js"></script>
+  </body>
+</html>

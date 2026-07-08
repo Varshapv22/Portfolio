@@ -1,0 +1,534 @@
+/* =============================================
+   RESET & BASE
+   ============================================= */
+*, *::before, *::after {
+  margin: 0; padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --cyan:    #00d4ff;
+  --purple:  #7b2fff;
+  --gold:    #ffd700;
+  --bg:      #010820;
+  --text:    rgba(255,255,255,0.88);
+  --muted:   rgba(255,255,255,0.45);
+  --glass:   rgba(255,255,255,0.04);
+  --border:  rgba(255,255,255,0.08);
+  --font:    'Inter', system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =============================================
+   CANVAS (fixed, fills viewport)
+   ============================================= */
+#bg {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+}
+
+/* =============================================
+   SCROLL DRIVER
+   ============================================= */
+.scroll-driver {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* =============================================
+   HUD (fixed overlay)
+   ============================================= */
+.hud {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.hud > * { pointer-events: auto; }
+
+/* =============================================
+   TOP BAR
+   ============================================= */
+.top-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: rgba(1, 8, 32, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  background: var(--glass);
+  transition: all 0.25s;
+}
+
+.back-btn:hover { color: #fff; border-color: rgba(255,255,255,0.2); }
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.title-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.journey-meta {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 500;
+  min-width: 120px;
+  text-align: right;
+}
+
+/* =============================================
+   MILESTONE CARD
+   ============================================= */
+.milestone-card {
+  position: absolute;
+  left: 2rem;
+  top: 50%;
+  width: 320px;
+  background: rgba(1, 8, 32, 0.82);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent, var(--cyan));
+  border-radius: 20px;
+  padding: 1.75rem;
+  opacity: 0;
+  transform: translateY(-50%) translateX(-40px) scale(0.88);
+  transition: opacity 0.5s cubic-bezier(0.34,1.56,0.64,1),
+              transform 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events: none;
+}
+
+.milestone-card.card-visible {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0) scale(1);
+  pointer-events: auto;
+  box-shadow: 0 0 40px rgba(0,0,0,0.6),
+              0 0 0 1px var(--accent, var(--cyan)) inset,
+              0 4px 40px -4px var(--accent, var(--cyan));
+}
+
+.ms-header {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.ms-icon {
+  font-size: 2rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 8px var(--accent, var(--cyan)));
+}
+
+.ms-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.ms-date {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent, var(--cyan));
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ms-location {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.ms-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.7rem;
+  line-height: 1.1;
+}
+
+.ms-desc {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+.ms-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.ms-tag {
+  padding: 0.25rem 0.7rem;
+  border-radius: 50px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--muted);
+  letter-spacing: 0.03em;
+}
+
+.ms-number {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.2);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-align: right;
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* =============================================
+   JOURNEY PROGRESS BAR (bottom)
+   ============================================= */
+.journey-progress {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(700px, calc(100vw - 4rem));
+  background: rgba(1, 8, 32, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1rem 1.5rem;
+}
+
+.progress-track {
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.875rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--purple));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+  width: 0%;
+}
+
+.progress-dots {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.prog-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: 2px solid rgba(255,255,255,0.15);
+  transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+  cursor: default;
+}
+
+.prog-dot.active {
+  background: var(--color);
+  border-color: var(--color);
+  box-shadow: 0 0 8px var(--color);
+}
+
+.prog-dot.current {
+  transform: scale(1.5);
+  box-shadow: 0 0 14px var(--color);
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+}
+
+.prog-label {
+  font-size: 0.62rem;
+  color: var(--muted);
+  font-weight: 500;
+  text-align: center;
+  flex: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =============================================
+   SCROLL HINT
+   ============================================= */
+.scroll-hint {
+  position: absolute;
+  bottom: 9rem;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.scroll-hint.hint-gone {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px);
+  pointer-events: none;
+}
+
+.hint-boat {
+  font-size: 2.5rem;
+  animation: boatBob 2s ease-in-out infinite;
+  filter: drop-shadow(0 4px 12px rgba(0,212,255,0.4));
+}
+
+.scroll-hint p {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-weight: 500;
+  background: rgba(1,8,32,0.6);
+  backdrop-filter: blur(12px);
+  padding: 0.4rem 1rem;
+  border-radius: 50px;
+  border: 1px solid var(--border);
+}
+
+.hint-arrow {
+  color: var(--cyan);
+  animation: arrowBounce 1.5s ease-in-out infinite;
+}
+
+/* =============================================
+   COMPASS
+   ============================================= */
+.compass {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  width: 70px; height: 70px;
+  background: rgba(1,8,32,0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compass-ring {
+  position: relative;
+  width: 56px; height: 56px;
+}
+
+.compass-n, .compass-s, .compass-e, .compass-w {
+  position: absolute;
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0;
+}
+.compass-n { top: 0;    left: 50%; transform: translateX(-50%); color: var(--cyan); }
+.compass-s { bottom: 0; left: 50%; transform: translateX(-50%); }
+.compass-e { right: 0;  top: 50%;  transform: translateY(-50%); }
+.compass-w { left: 0;   top: 50%;  transform: translateY(-50%); }
+
+.compass-needle {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 2px; height: 22px;
+  margin-left: -1px;
+  margin-top: -18px;
+  background: linear-gradient(to top, #ff4444, var(--cyan));
+  border-radius: 2px;
+  transform-origin: bottom center;
+  transition: transform 0.3s ease;
+}
+
+/* =============================================
+   KEYFRAMES
+   ============================================= */
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,212,255,0.4); }
+  50%       { box-shadow: 0 0 0 6px rgba(0,212,255,0); }
+}
+
+@keyframes boatBob {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50%       { transform: translateY(-8px) rotate(3deg); }
+}
+
+@keyframes arrowBounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(6px); }
+}
+
+/* =============================================
+   ISLAND POPUP OVERLAYS (3D projected)
+   ============================================= */
+#islandPopups {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.island-popup {
+  position: absolute;
+  transform: translate(-50%, -100%) scale(0.75);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.34,1.56,0.64,1),
+              transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  will-change: transform, opacity;
+}
+
+.island-popup.popup-visible {
+  opacity: 1;
+  transform: translate(-50%, -100%) scale(1);
+}
+
+.ip-card {
+  background: rgba(1, 8, 32, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-top: 2px solid var(--accent, var(--cyan));
+  border-radius: 16px;
+  padding: 1rem 1.2rem 0.9rem;
+  min-width: 170px;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6),
+              0 0 30px -8px var(--accent, var(--cyan));
+  position: relative;
+}
+
+.ip-icon {
+  font-size: 2rem;
+  line-height: 1;
+  margin-bottom: 0.4rem;
+  filter: drop-shadow(0 0 8px var(--accent, var(--cyan)));
+  animation: ipIconPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+.ip-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.2rem;
+}
+
+.ip-meta {
+  font-size: 0.7rem;
+  color: var(--accent, var(--cyan));
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+
+.ip-location {
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* downward arrow */
+.ip-arrow {
+  width: 12px;
+  height: 12px;
+  background: rgba(1, 8, 32, 0.88);
+  border-right: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  transform: rotate(45deg);
+  margin: -6px auto 0;
+  position: relative;
+  z-index: -1;
+}
+
+@keyframes ipIconPop {
+  0%   { transform: scale(0.4); opacity: 0; }
+  60%  { transform: scale(1.25); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 768px) {
+  .milestone-card {
+    left: 1rem; right: 1rem;
+    width: auto;
+    top: auto;
+    bottom: 8rem;
+    transform: translateX(0) translateY(30px) scale(0.92);
+    padding: 1.25rem;
+  }
+  .milestone-card.card-visible {
+    transform: translateX(0) translateY(0) scale(1);
+  }
+
+  .ms-title { font-size: 1.4rem; }
+  .ms-desc  { font-size: 0.8rem; }
+
+  .journey-progress {
+    bottom: 1rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .compass { display: none; }
+  .scroll-hint { bottom: 10rem; }
+
+  .top-bar { padding: 0.75rem 1rem; }
+}

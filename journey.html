@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Life Journey · Varsha</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/journey.css" />
+  </head>
+  <body>
+
+    <!-- THREE.JS CANVAS (fixed) -->
+    <canvas id="bg"></canvas>
+
+    <!-- SCROLL DRIVER — provides scroll room, has no visible content -->
+    <div class="scroll-driver" id="scrollDriver"></div>
+
+    <!-- FIXED HUD LAYER -->
+    <div class="hud">
+
+      <!-- TOP BAR -->
+      <div class="top-bar">
+        <a href="/" class="back-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="19 12 5 12"/><polyline points="12 5 5 12 12 19"/></svg>
+          Back
+        </a>
+        <div class="page-title">
+          <span class="title-dot"></span>
+          Life Journey
+        </div>
+        <div class="journey-meta" id="journeyMeta">
+          <span id="metaLabel">Scroll to sail</span>
+        </div>
+        <a href="/game.html" style="position: absolute; right: 20px; color: #7b2fff; text-decoration: none; font-weight: 600; padding: 0.25rem 0.75rem; border: 1px solid rgba(123, 47, 255, 0.25); border-radius: 50px; background: rgba(123, 47, 255, 0.06); transition: all 0.3s; z-index: 10;">🎮 Game</a>
+      </div>
+
+      <!-- MILESTONE CARD (left panel) -->
+      <div class="milestone-card" id="milestoneCard">
+        <div class="ms-header">
+          <div class="ms-icon" id="msIcon">🌟</div>
+          <div class="ms-header-text">
+            <span class="ms-date" id="msDate">1995</span>
+            <span class="ms-location" id="msLocation">Your Hometown</span>
+          </div>
+        </div>
+        <h2 class="ms-title" id="msTitle">Born</h2>
+        <p class="ms-desc" id="msDesc">The voyage begins. A new soul sets sail on the ocean of life, ready to discover the world.</p>
+        <div class="ms-tags" id="msTags"></div>
+        <div class="ms-number" id="msNumber">01 / 07</div>
+      </div>
+
+      <!-- JOURNEY PROGRESS (bottom) -->
+      <div class="journey-progress">
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-dots" id="progressDots"></div>
+        <div class="progress-labels" id="progressLabels"></div>
+      </div>
+
+      <!-- SCROLL HINT -->
+      <div class="scroll-hint" id="scrollHint">
+        <div class="hint-boat">⛵</div>
+        <p>Scroll to sail through life's journey</p>
+        <div class="hint-arrow">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        </div>
+      </div>
+
+      <!-- ISLAND POPUPS (3D-projected tooltips) -->
+      <div id="islandPopups"></div>
+
+      <!-- COMPASS (decorative) -->
+      <div class="compass" id="compass">
+        <div class="compass-ring">
+          <span class="compass-n">N</span>
+          <span class="compass-s">S</span>
+          <span class="compass-e">E</span>
+          <span class="compass-w">W</span>
+          <div class="compass-needle" id="compassNeedle"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <script type="module" src="/src/journey.js"></script>
+  </body>
+</html>
