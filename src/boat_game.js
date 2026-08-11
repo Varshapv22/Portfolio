@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { getTheme, initThemeToggle } from './theme.js';
 
 /* =============================================
    MOBILE MENU TOGGLE
@@ -13,6 +14,16 @@ menuToggle?.addEventListener('click', () => {
 document.querySelectorAll('.mobile-link').forEach((link) => {
   link.addEventListener('click', () => mobileMenu.classList.remove('open'));
 });
+
+initThemeToggle();
+
+/* =============================================
+   THEME PALETTE
+   ============================================= */
+const SCENE_THEME = {
+  dark:  { bg: 0x0a1128, ambientIntensity: 0.5, dir: 0x00d2ff, dirIntensity: 1.5, blue: 0x3a7bd5, blueIntensity: 2, water: 0x001e36 },
+  light: { bg: 0xbfe3f5, ambientIntensity: 1.1, dir: 0xfff4dd, dirIntensity: 2.2, blue: 0x8fd0ff, blueIntensity: 0.8, water: 0x3aa0d8 },
+};
 
 // -----------------------------
 // GAME STATE & VARIABLES
@@ -35,8 +46,8 @@ const restartBtn = document.getElementById('restartBtn');
 // -----------------------------
 const canvas = document.querySelector('#boat-bg');
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x0a1128, 0.015);
-scene.background = new THREE.Color(0x0a1128); // Dark ocean night sky
+scene.fog = new THREE.FogExp2(SCENE_THEME[getTheme()].bg, 0.015);
+scene.background = new THREE.Color(SCENE_THEME[getTheme()].bg);
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 // Position camera behind and slightly above the boat
@@ -56,17 +67,17 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 // -----------------------------
 // LIGHTING
 // -----------------------------
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+const ambientLight = new THREE.AmbientLight(0xffffff, SCENE_THEME[getTheme()].ambientIntensity);
 scene.add(ambientLight);
 
-const dirLight = new THREE.DirectionalLight(0x00d2ff, 1.5);
+const dirLight = new THREE.DirectionalLight(SCENE_THEME[getTheme()].dir, SCENE_THEME[getTheme()].dirIntensity);
 dirLight.position.set(20, 40, 20);
 dirLight.castShadow = true;
 dirLight.shadow.mapSize.width = 2048;
 dirLight.shadow.mapSize.height = 2048;
 scene.add(dirLight);
 
-const blueLight = new THREE.PointLight(0x3a7bd5, 2, 50);
+const blueLight = new THREE.PointLight(SCENE_THEME[getTheme()].blue, SCENE_THEME[getTheme()].blueIntensity, 50);
 blueLight.position.set(-10, 10, -10);
 scene.add(blueLight);
 
@@ -77,11 +88,25 @@ scene.add(blueLight);
 const waterGeo = new THREE.PlaneGeometry(200, 200, 64, 64);
 waterGeo.rotateX(-Math.PI / 2); // Lay flat
 const waterMat = new THREE.MeshStandardMaterial({
-  color: 0x001e36,
+  color: SCENE_THEME[getTheme()].water,
   roughness: 0.1,
   metalness: 0.8,
   flatShading: true
 });
+
+function applySceneTheme(theme) {
+  const cfg = SCENE_THEME[theme];
+  scene.background.set(cfg.bg);
+  scene.fog.color.set(cfg.bg);
+  ambientLight.intensity = cfg.ambientIntensity;
+  dirLight.color.set(cfg.dir);
+  dirLight.intensity = cfg.dirIntensity;
+  blueLight.color.set(cfg.blue);
+  blueLight.intensity = cfg.blueIntensity;
+  waterMat.color.set(cfg.water);
+}
+
+window.addEventListener('themechange', (e) => applySceneTheme(e.detail.theme));
 const water = new THREE.Mesh(waterGeo, waterMat);
 water.receiveShadow = true;
 scene.add(water);

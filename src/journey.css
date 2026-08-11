@@ -15,7 +15,24 @@
   --muted:   rgba(255,255,255,0.45);
   --glass:   rgba(255,255,255,0.04);
   --border:  rgba(255,255,255,0.08);
+  --heading: #ffffff;
+  --fg-rgb:      255, 255, 255;
+  --surface-rgb: 1, 8, 32;
   --font:    'Inter', system-ui, sans-serif;
+}
+
+[data-theme="light"] {
+  --cyan:    #0088b0;
+  --purple:  #6420d6;
+  --gold:    #b8860b;
+  --bg:      #eef3fb;
+  --text:    rgba(10,16,35,0.85);
+  --muted:   rgba(10,16,35,0.5);
+  --glass:   rgba(10,16,35,0.04);
+  --border:  rgba(10,16,35,0.1);
+  --heading: #0a0e1e;
+  --fg-rgb:      10, 16, 35;
+  --surface-rgb: 255, 255, 255;
 }
 
 html { scroll-behavior: smooth; }
@@ -70,7 +87,7 @@ body {
   justify-content: space-between;
   gap: 0.75rem;
   padding: 1rem 2rem;
-  background: rgba(1, 8, 32, 0.65);
+  background: rgba(var(--surface-rgb), 0.65);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
@@ -95,6 +112,33 @@ body {
   border-color: rgba(123, 47, 255, 0.5);
 }
 
+/* =============================================
+   THEME TOGGLE
+   ============================================= */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.25s, border-color 0.25s, color 0.25s;
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  color: var(--heading);
+  border-color: rgba(var(--fg-rgb), 0.2);
+}
+
+.theme-toggle svg { width: 16px; height: 16px; }
+.theme-toggle .icon-sun { display: none; }
+[data-theme="light"] .theme-toggle .icon-moon { display: none; }
+[data-theme="light"] .theme-toggle .icon-sun { display: block; }
+
 .back-btn {
   display: inline-flex;
   align-items: center;
@@ -110,7 +154,7 @@ body {
   transition: all 0.25s;
 }
 
-.back-btn:hover { color: #fff; border-color: rgba(255,255,255,0.2); }
+.back-btn:hover { color: var(--heading); border-color: rgba(var(--fg-rgb), 0.2); }
 
 .page-title {
   display: flex;
@@ -118,7 +162,7 @@ body {
   gap: 0.5rem;
   font-size: 0.95rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--heading);
   letter-spacing: 0.02em;
 }
 
@@ -145,7 +189,7 @@ body {
   left: 2rem;
   top: 50%;
   width: 320px;
-  background: rgba(1, 8, 32, 0.82);
+  background: rgba(var(--surface-rgb), 0.82);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
   border: 1px solid var(--border);
@@ -204,7 +248,7 @@ body {
 .ms-title {
   font-size: 1.8rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--heading);
   letter-spacing: -0.03em;
   margin-bottom: 0.7rem;
   line-height: 1.1;
@@ -229,15 +273,15 @@ body {
   border-radius: 50px;
   font-size: 0.7rem;
   font-weight: 600;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(var(--fg-rgb), 0.06);
+  border: 1px solid rgba(var(--fg-rgb), 0.1);
   color: var(--muted);
   letter-spacing: 0.03em;
 }
 
 .ms-number {
   font-size: 0.7rem;
-  color: rgba(255,255,255,0.2);
+  color: rgba(var(--fg-rgb), 0.2);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-align: right;
@@ -255,7 +299,7 @@ body {
   left: 50%;
   transform: translateX(-50%);
   width: min(700px, calc(100vw - 4rem));
-  background: rgba(1, 8, 32, 0.75);
+  background: rgba(var(--surface-rgb), 0.75);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--border);
@@ -265,7 +309,7 @@ body {
 
 .progress-track {
   height: 4px;
-  background: rgba(255,255,255,0.08);
+  background: rgba(var(--fg-rgb), 0.08);
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 0.875rem;
@@ -290,8 +334,8 @@ body {
 .prog-dot {
   width: 10px; height: 10px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.12);
-  border: 2px solid rgba(255,255,255,0.15);
+  background: rgba(var(--fg-rgb), 0.12);
+  border: 2px solid rgba(var(--fg-rgb), 0.15);
   transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
   position: relative;
   cursor: default;
@@ -357,7 +401,7 @@ body {
   font-size: 0.8rem;
   color: var(--muted);
   font-weight: 500;
-  background: rgba(1,8,32,0.6);
+  background: rgba(var(--surface-rgb), 0.6);
   backdrop-filter: blur(12px);
   padding: 0.4rem 1rem;
   border-radius: 50px;
@@ -377,7 +421,7 @@ body {
   bottom: 2rem;
   right: 2rem;
   width: 70px; height: 70px;
-  background: rgba(1,8,32,0.8);
+  background: rgba(var(--surface-rgb), 0.8);
   backdrop-filter: blur(20px);
   border: 1px solid var(--border);
   border-radius: 50%;
@@ -459,10 +503,10 @@ body {
 }
 
 .ip-card {
-  background: rgba(1, 8, 32, 0.88);
+  background: rgba(var(--surface-rgb), 0.88);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(var(--fg-rgb), 0.1);
   border-top: 2px solid var(--accent, var(--cyan));
   border-radius: 16px;
   padding: 1rem 1.2rem 0.9rem;
@@ -484,7 +528,7 @@ body {
 .ip-title {
   font-size: 1rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--heading);
   letter-spacing: -0.02em;
   margin-bottom: 0.2rem;
 }
@@ -508,9 +552,9 @@ body {
 .ip-arrow {
   width: 12px;
   height: 12px;
-  background: rgba(1, 8, 32, 0.88);
-  border-right: 1px solid rgba(255,255,255,0.1);
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  background: rgba(var(--surface-rgb), 0.88);
+  border-right: 1px solid rgba(var(--fg-rgb), 0.1);
+  border-bottom: 1px solid rgba(var(--fg-rgb), 0.1);
   transform: rotate(45deg);
   margin: -6px auto 0;
   position: relative;
