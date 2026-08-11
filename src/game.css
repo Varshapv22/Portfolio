@@ -127,3 +127,26 @@
 body.game-playing {
     cursor: crosshair;
 }
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 768px) {
+  .game-hud {
+    top: 68px;
+    gap: 1rem;
+    padding: 0.6rem 1.1rem;
+  }
+  .hud-item { font-size: 0.95rem; }
+  .modal-content { padding: 2rem; }
+}
+
+@media (max-width: 480px) {
+  .game-hud {
+    top: 60px;
+    gap: 0.6rem;
+    padding: 0.5rem 0.85rem;
+  }
+  .hud-item { font-size: 0.8rem; }
+  .modal-content { padding: 1.5rem; }
+}
