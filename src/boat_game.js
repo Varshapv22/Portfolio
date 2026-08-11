@@ -1,5 +1,19 @@
 import * as THREE from 'three';
 
+/* =============================================
+   MOBILE MENU TOGGLE
+   ============================================= */
+const menuToggle = document.getElementById('menuToggle');
+const mobileMenu = document.getElementById('mobileMenu');
+
+menuToggle?.addEventListener('click', () => {
+  mobileMenu.classList.toggle('open');
+});
+
+document.querySelectorAll('.mobile-link').forEach((link) => {
+  link.addEventListener('click', () => mobileMenu.classList.remove('open'));
+});
+
 // -----------------------------
 // GAME STATE & VARIABLES
 // -----------------------------
