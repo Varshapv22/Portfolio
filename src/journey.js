@@ -1,30 +1,5 @@
 import './journey.css';
 import * as THREE from 'three';
-import { getTheme, initThemeToggle } from './theme.js';
-
-/* =============================================
-   THEME PALETTE (night voyage <-> day voyage)
-   ============================================= */
-const SCENE_THEME = {
-  dark: {
-    fog: 0x010820,
-    skyTop: 0x010312, skyHorizon: 0x0a1a3e,
-    moonColor: 0x8899dd, moonIntensity: 2.0,
-    ambient: 0x112244, ambientIntensity: 2.5,
-    hemiSky: 0x003366, hemiGround: 0x001133, hemiIntensity: 1.0,
-    water: 0x003d6b, waterEmissive: 0x001a33, waterEmissiveIntensity: 0.5,
-    nightVisible: true,
-  },
-  light: {
-    fog: 0xcfe9f7,
-    skyTop: 0x4fa8dd, skyHorizon: 0xdcefff,
-    moonColor: 0xfff2cf, moonIntensity: 2.6,
-    ambient: 0xffffff, ambientIntensity: 2.4,
-    hemiSky: 0x9fd6ff, hemiGround: 0x2a6b8a, hemiIntensity: 1.2,
-    water: 0x2f9fd8, waterEmissive: 0x0a3550, waterEmissiveIntensity: 0.12,
-    nightVisible: false,
-  },
-};
 
 /* =============================================
    LIFE JOURNEY DATA
@@ -143,7 +118,7 @@ document.getElementById('scrollDriver').style.height = `${SCROLL_HEIGHT}px`;
    ============================================= */
 const canvas = document.querySelector('#bg');
 const scene  = new THREE.Scene();
-scene.fog    = new THREE.FogExp2(SCENE_THEME[getTheme()].fog, 0.008);
+scene.fog    = new THREE.FogExp2(0x010820, 0.008);
 
 const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1200);
 camera.position.set(0, 14, 28);
@@ -175,8 +150,8 @@ const curve = new THREE.CatmullRomCurve3(PATH_POINTS, false, 'catmullrom', 0.5);
 /* =============================================
    LIGHTING
    ============================================= */
-// Moonlight (cool directional) / Sunlight in light theme
-const moon = new THREE.DirectionalLight(SCENE_THEME[getTheme()].moonColor, SCENE_THEME[getTheme()].moonIntensity);
+// Moonlight (cool directional)
+const moon = new THREE.DirectionalLight(0x8899dd, 2.0);
 moon.position.set(-60, 80, -40);
 moon.castShadow = true;
 moon.shadow.mapSize.set(2048, 2048);
@@ -189,11 +164,11 @@ moon.shadow.camera.bottom = -150;
 scene.add(moon);
 
 // Soft ambient
-const ambient = new THREE.AmbientLight(SCENE_THEME[getTheme()].ambient, SCENE_THEME[getTheme()].ambientIntensity);
+const ambient = new THREE.AmbientLight(0x112244, 2.5);
 scene.add(ambient);
 
 // Fill from below (fake water bounce)
-const fillLight = new THREE.HemisphereLight(SCENE_THEME[getTheme()].hemiSky, SCENE_THEME[getTheme()].hemiGround, SCENE_THEME[getTheme()].hemiIntensity);
+const fillLight = new THREE.HemisphereLight(0x003366, 0x001133, 1.0);
 scene.add(fillLight);
 
 /* =============================================
@@ -203,8 +178,8 @@ const skyGeo = new THREE.SphereGeometry(600, 32, 32);
 const skyMat = new THREE.ShaderMaterial({
   side: THREE.BackSide,
   uniforms: {
-    topColor:    { value: new THREE.Color(SCENE_THEME[getTheme()].skyTop) },
-    horizonColor:{ value: new THREE.Color(SCENE_THEME[getTheme()].skyHorizon) },
+    topColor:    { value: new THREE.Color(0x010312) },
+    horizonColor:{ value: new THREE.Color(0x0a1a3e) },
   },
   vertexShader: `
     varying float vY;
@@ -255,10 +230,8 @@ function buildMoon() {
 
   group.position.set(-200, 220, -300);
   scene.add(group);
-  return group;
 }
-const moonSphere = buildMoon();
-moonSphere.visible = SCENE_THEME[getTheme()].nightVisible;
+buildMoon();
 
 /* =============================================
    STARS
@@ -293,7 +266,7 @@ function buildStars() {
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
   geo.setAttribute('color',    new THREE.BufferAttribute(col, 3));
 
-  const points = new THREE.Points(geo, new THREE.PointsMaterial({
+  scene.add(new THREE.Points(geo, new THREE.PointsMaterial({
     size: 0.4,
     vertexColors: true,
     transparent: true,
@@ -301,12 +274,9 @@ function buildStars() {
     blending: THREE.AdditiveBlending,
     depthWrite: false,
     sizeAttenuation: true,
-  }));
-  scene.add(points);
-  return points;
+  })));
 }
-const starPoints = buildStars();
-starPoints.visible = SCENE_THEME[getTheme()].nightVisible;
+buildStars();
 
 /* =============================================
    OCEAN
@@ -316,9 +286,9 @@ const waterGeo   = new THREE.PlaneGeometry(900, 900, WATER_SEGS, WATER_SEGS);
 waterGeo.rotateX(-Math.PI / 2);
 
 const waterMat = new THREE.MeshPhongMaterial({
-  color: SCENE_THEME[getTheme()].water,
-  emissive: SCENE_THEME[getTheme()].waterEmissive,
-  emissiveIntensity: SCENE_THEME[getTheme()].waterEmissiveIntensity,
+  color: 0x003d6b,
+  emissive: 0x001a33,
+  emissiveIntensity: 0.5,
   shininess: 120,
   specular: new THREE.Color(0x4488cc),
   transparent: true,
@@ -329,7 +299,7 @@ const waterMesh = new THREE.Mesh(waterGeo, waterMat);
 waterMesh.receiveShadow = true;
 scene.add(waterMesh);
 
-// Bioluminescent glow layer (additive) — night-only magical effect
+// Bioluminescent glow layer (additive)
 const glowGeo = new THREE.PlaneGeometry(900, 900, 1, 1);
 glowGeo.rotateX(-Math.PI / 2);
 const glowMat = new THREE.MeshBasicMaterial({
@@ -341,7 +311,6 @@ const glowMat = new THREE.MeshBasicMaterial({
 });
 const glowPlane = new THREE.Mesh(glowGeo, glowMat);
 glowPlane.position.y = 0.1;
-glowPlane.visible = SCENE_THEME[getTheme()].nightVisible;
 scene.add(glowPlane);
 
 /* =============================================
@@ -388,7 +357,6 @@ function buildBioluminescence() {
   return new THREE.Points(geo, mat);
 }
 const bioParticles = buildBioluminescence();
-bioParticles.visible = SCENE_THEME[getTheme()].nightVisible;
 scene.add(bioParticles);
 
 /* =============================================
@@ -969,34 +937,6 @@ animate();
 
 /* Show initial milestone card (boat starts at island 0) */
 setTimeout(() => { currentMilestoneIdx = -1; updateMilestoneCard(0); }, 600);
-
-/* =============================================
-   THEME TOGGLE
-   ============================================= */
-initThemeToggle();
-
-function applySceneTheme(theme) {
-  const cfg = SCENE_THEME[theme];
-  scene.fog.color.set(cfg.fog);
-  skyMat.uniforms.topColor.value.set(cfg.skyTop);
-  skyMat.uniforms.horizonColor.value.set(cfg.skyHorizon);
-  moon.color.set(cfg.moonColor);
-  moon.intensity = cfg.moonIntensity;
-  ambient.color.set(cfg.ambient);
-  ambient.intensity = cfg.ambientIntensity;
-  fillLight.color.set(cfg.hemiSky);
-  fillLight.groundColor.set(cfg.hemiGround);
-  fillLight.intensity = cfg.hemiIntensity;
-  waterMat.color.set(cfg.water);
-  waterMat.emissive.set(cfg.waterEmissive);
-  waterMat.emissiveIntensity = cfg.waterEmissiveIntensity;
-  moonSphere.visible = cfg.nightVisible;
-  starPoints.visible = cfg.nightVisible;
-  glowPlane.visible = cfg.nightVisible;
-  bioParticles.visible = cfg.nightVisible;
-}
-
-window.addEventListener('themechange', (e) => applySceneTheme(e.detail.theme));
 
 /* =============================================
    RESIZE

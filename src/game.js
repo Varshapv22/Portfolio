@@ -1,7 +1,6 @@
 import './style.css';
 import './game.css';
 import * as THREE from 'three';
-import { getTheme, initThemeToggle } from './theme.js';
 
 /* =============================================
    MOBILE MENU TOGGLE (from main.js)
@@ -19,18 +18,12 @@ document.querySelectorAll('.mobile-link').forEach((link) => {
 
 const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
-  navbar.classList.toggle('scrolled', window.scrollY > 60);
+  if (window.scrollY > 60) {
+    navbar.style.background = 'rgba(5, 5, 16, 0.92)';
+  } else {
+    navbar.style.background = 'rgba(5, 5, 16, 0.6)';
+  }
 });
-
-initThemeToggle();
-
-/* =============================================
-   THEME PALETTE
-   ============================================= */
-const SCENE_THEME = {
-  dark:  { bg: 0x050510, ambient: 0x1a1a40, ambientIntensity: 2, star: 0xffffff, starOpacity: 0.4 },
-  light: { bg: 0xeef1f8, ambient: 0xffffff, ambientIntensity: 1.6, star: 0x27314f, starOpacity: 0.25 },
-};
 
 
 /* =============================================
@@ -56,8 +49,8 @@ let spawnTimer = null;
 // Three.js Setup
 const canvas = document.querySelector('#game-bg');
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(SCENE_THEME[getTheme()].bg);
-scene.fog = new THREE.FogExp2(SCENE_THEME[getTheme()].bg, 0.015);
+scene.background = new THREE.Color(0x050510);
+scene.fog = new THREE.FogExp2(0x050510, 0.015);
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 0, 30);
@@ -67,8 +60,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 // Lighting matching the agency theme
-const ambient = new THREE.AmbientLight(SCENE_THEME[getTheme()].ambient, SCENE_THEME[getTheme()].ambientIntensity);
-scene.add(ambient);
+scene.add(new THREE.AmbientLight(0x1a1a40, 2));
 const light1 = new THREE.PointLight(0x00d4ff, 80, 120);
 light1.position.set(20, 20, 20);
 scene.add(light1);
@@ -83,20 +75,8 @@ for (let i = 0; i < 3000 * 3; i++) {
   starPositions[i] = (Math.random() - 0.5) * 400;
 }
 starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-const starMat = new THREE.PointsMaterial({ size: 0.2, color: SCENE_THEME[getTheme()].star, transparent: true, opacity: SCENE_THEME[getTheme()].starOpacity });
+const starMat = new THREE.PointsMaterial({ size: 0.2, color: 0xffffff, transparent: true, opacity: 0.4 });
 scene.add(new THREE.Points(starGeo, starMat));
-
-function applySceneTheme(theme) {
-  const cfg = SCENE_THEME[theme];
-  scene.background.set(cfg.bg);
-  scene.fog.color.set(cfg.bg);
-  ambient.color.set(cfg.ambient);
-  ambient.intensity = cfg.ambientIntensity;
-  starMat.color.set(cfg.star);
-  starMat.opacity = cfg.starOpacity;
-}
-
-window.addEventListener('themechange', (e) => applySceneTheme(e.detail.theme));
 
 
 // Game Entities

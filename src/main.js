@@ -1,14 +1,5 @@
 import './style.css';
 import * as THREE from 'three';
-import { getTheme, initThemeToggle } from './theme.js';
-
-/* =============================================
-   THEME PALETTES
-   ============================================= */
-const SCENE_THEME = {
-  dark:  { bg: 0x050510, ambient: 0x1a1a40, ambientIntensity: 3, knot: 0x08082a, star: 0xffffff, starOpacity: 0.6, particleFill: 0xffffff },
-  light: { bg: 0xeef1f8, ambient: 0xffffff, ambientIntensity: 2.2, knot: 0xc7ced8, star: 0x27314f, starOpacity: 0.35, particleFill: 0x334155 },
-};
 
 /* =============================================
    SCENE SETUP
@@ -16,8 +7,8 @@ const SCENE_THEME = {
 const canvas = document.querySelector('#bg');
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(SCENE_THEME[getTheme()].bg);
-scene.fog = new THREE.FogExp2(SCENE_THEME[getTheme()].bg, 0.012);
+scene.background = new THREE.Color(0x050510);
+scene.fog = new THREE.FogExp2(0x050510, 0.012);
 
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -36,7 +27,7 @@ renderer.toneMappingExposure = 1.2;
 /* =============================================
    LIGHTING
    ============================================= */
-const ambient = new THREE.AmbientLight(SCENE_THEME[getTheme()].ambient, SCENE_THEME[getTheme()].ambientIntensity);
+const ambient = new THREE.AmbientLight(0x1a1a40, 3);
 scene.add(ambient);
 
 const light1 = new THREE.PointLight(0x00d4ff, 80, 120);
@@ -57,7 +48,7 @@ scene.add(light3);
 const knotGeo = new THREE.TorusKnotGeometry(7, 2.2, 220, 32, 2, 3);
 
 const knotMat = new THREE.MeshPhongMaterial({
-  color: SCENE_THEME[getTheme()].knot,
+  color: 0x08082a,
   emissive: 0x00d4ff,
   emissiveIntensity: 0.18,
   shininess: 120,
@@ -83,11 +74,15 @@ const PARTICLE_COUNT = 9000;
 const particleGeo = new THREE.BufferGeometry();
 const positions  = new Float32Array(PARTICLE_COUNT * 3);
 const colors     = new Float32Array(PARTICLE_COUNT * 3);
-const paletteIdx = new Uint8Array(PARTICLE_COUNT);
 
-const PALETTE_BASE = [0x00d4ff, 0x7b2fff, 0xff6b6b, null, 0x88aaff, 0xffcc44];
-const paletteFor = (theme) =>
-  PALETTE_BASE.map((hex) => new THREE.Color(hex === null ? SCENE_THEME[theme].particleFill : hex));
+const palette = [
+  new THREE.Color(0x00d4ff),
+  new THREE.Color(0x7b2fff),
+  new THREE.Color(0xff6b6b),
+  new THREE.Color(0xffffff),
+  new THREE.Color(0x88aaff),
+  new THREE.Color(0xffcc44),
+];
 
 const ARMS = 3;
 
@@ -103,24 +98,14 @@ for (let i = 0; i < PARTICLE_COUNT; i++) {
   positions[i3 + 1] = scatter * sign * 5;
   positions[i3 + 2] = Math.sin(branch + spin) * radius + scatter * sign * 6;
 
-  paletteIdx[i] = Math.floor(Math.random() * PALETTE_BASE.length);
-}
-
-function applyGalaxyPalette(theme) {
-  const palette = paletteFor(theme);
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    const i3 = i * 3;
-    const c = palette[paletteIdx[i]];
-    colors[i3]     = c.r;
-    colors[i3 + 1] = c.g;
-    colors[i3 + 2] = c.b;
-  }
-  particleGeo.attributes.color.needsUpdate = true;
+  const c = palette[Math.floor(Math.random() * palette.length)];
+  colors[i3]     = c.r;
+  colors[i3 + 1] = c.g;
+  colors[i3 + 2] = c.b;
 }
 
 particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 particleGeo.setAttribute('color',    new THREE.BufferAttribute(colors, 3));
-applyGalaxyPalette(getTheme());
 
 const particleMat = new THREE.PointsMaterial({
   size: 0.28,
@@ -149,9 +134,9 @@ starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
 
 const starMat = new THREE.PointsMaterial({
   size: 0.18,
-  color: SCENE_THEME[getTheme()].star,
+  color: 0xffffff,
   transparent: true,
-  opacity: SCENE_THEME[getTheme()].starOpacity,
+  opacity: 0.6,
   blending: THREE.AdditiveBlending,
   depthWrite: false,
 });
@@ -345,24 +330,9 @@ document.querySelectorAll('.mobile-link').forEach((link) => {
 const navbar = document.getElementById('navbar');
 
 window.addEventListener('scroll', () => {
-  navbar.classList.toggle('scrolled', window.scrollY > 60);
+  if (window.scrollY > 60) {
+    navbar.style.background = 'rgba(5, 5, 16, 0.92)';
+  } else {
+    navbar.style.background = 'rgba(5, 5, 16, 0.6)';
+  }
 });
-
-/* =============================================
-   THEME TOGGLE
-   ============================================= */
-initThemeToggle();
-
-function applySceneTheme(theme) {
-  const cfg = SCENE_THEME[theme];
-  scene.background.set(cfg.bg);
-  scene.fog.color.set(cfg.bg);
-  ambient.color.set(cfg.ambient);
-  ambient.intensity = cfg.ambientIntensity;
-  knotMat.color.set(cfg.knot);
-  starMat.color.set(cfg.star);
-  starMat.opacity = cfg.starOpacity;
-  applyGalaxyPalette(theme);
-}
-
-window.addEventListener('themechange', (e) => applySceneTheme(e.detail.theme));
