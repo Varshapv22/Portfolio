@@ -145,25 +145,24 @@ const stars = new THREE.Points(starGeo, starMat);
 scene.add(stars);
 
 /* =============================================
-   FLOATING GEOMETRIES
+   FLOATING GEOMETRIES (a few abstract accents,
+   kept sparse so the tech-stack orbit below reads clearly)
    ============================================= */
 const geoTypes = [
   new THREE.IcosahedronGeometry(1.1, 1),
   new THREE.OctahedronGeometry(1.3),
   new THREE.TetrahedronGeometry(1.2),
-  new THREE.DodecahedronGeometry(0.9),
 ];
 
 const wireMats = [
-  new THREE.MeshBasicMaterial({ color: 0x00d4ff, wireframe: true, transparent: true, opacity: 0.65 }),
-  new THREE.MeshBasicMaterial({ color: 0x7b2fff, wireframe: true, transparent: true, opacity: 0.65 }),
-  new THREE.MeshBasicMaterial({ color: 0xff6b6b, wireframe: true, transparent: true, opacity: 0.65 }),
-  new THREE.MeshBasicMaterial({ color: 0x88aaff, wireframe: true, transparent: true, opacity: 0.65 }),
+  new THREE.MeshBasicMaterial({ color: 0x00d4ff, wireframe: true, transparent: true, opacity: 0.5 }),
+  new THREE.MeshBasicMaterial({ color: 0x7b2fff, wireframe: true, transparent: true, opacity: 0.5 }),
+  new THREE.MeshBasicMaterial({ color: 0xff6b6b, wireframe: true, transparent: true, opacity: 0.5 }),
 ];
 
 const floaters = [];
 
-for (let i = 0; i < 18; i++) {
+for (let i = 0; i < 8; i++) {
   const geo = geoTypes[Math.floor(Math.random() * geoTypes.length)];
   const mat = wireMats[Math.floor(Math.random() * wireMats.length)];
   const mesh = new THREE.Mesh(geo, mat);
@@ -175,12 +174,114 @@ for (let i = 0; i < 18; i++) {
   );
   mesh.rotation.set(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, 0);
 
-  const s = Math.random() * 2 + 0.4;
+  const s = Math.random() * 1.6 + 0.4;
   mesh.scale.setScalar(s);
 
   scene.add(mesh);
   floaters.push({ mesh, speed: Math.random() * 0.008 + 0.003, offset: Math.random() * Math.PI * 2 });
 }
+
+/* =============================================
+   TECH-STACK ORBIT
+   A constellation of glowing badges naming the
+   real stack (PHP, Laravel, MySQL, WordPress, REST
+   APIs, WooCommerce, Git, MVC) orbiting the central
+   core, each wired to it by a thin data-flow line
+   with a pulse of "traffic" travelling along it —
+   a visual nod to backend/API development.
+   ============================================= */
+function makeBadgeSprite(text, colorHex) {
+  const size = 320;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const hex = '#' + colorHex.toString(16).padStart(6, '0');
+
+  const cx = size / 2;
+  const cy = size / 2;
+
+  const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 0.5);
+  glow.addColorStop(0, hex + '55');
+  glow.addColorStop(1, hex + '00');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, size, size);
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, size * 0.33, 0, Math.PI * 2);
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = hex;
+  ctx.stroke();
+
+  const fontSize = text.length <= 4 ? 62 : text.length <= 7 ? 44 : 34;
+  ctx.font = `700 ${fontSize}px Inter, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#ffffff';
+  ctx.shadowColor = hex;
+  ctx.shadowBlur = 22;
+  ctx.fillText(text, cx, cy + 2);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  const material = new THREE.SpriteMaterial({
+    map: texture,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  return new THREE.Sprite(material);
+}
+
+const TECH_BADGES = [
+  { text: 'PHP',        color: 0x00d4ff },
+  { text: 'Laravel',    color: 0xff6b6b },
+  { text: 'MySQL',      color: 0x7b2fff },
+  { text: 'WordPress',  color: 0x00d4ff },
+  { text: 'REST API',   color: 0xff6b6b },
+  { text: 'WooComm.',   color: 0x7b2fff },
+  { text: 'MVC',        color: 0x00d4ff },
+  { text: 'Git',        color: 0xff6b6b },
+];
+
+const techCore = new THREE.Vector3(0, 0, 0);
+const orbitNodes = [];
+const packetGeo = new THREE.SphereGeometry(0.22, 8, 8);
+
+TECH_BADGES.forEach((badge, i) => {
+  const sprite = makeBadgeSprite(badge.text, badge.color);
+  const scale = 4.4;
+  sprite.scale.set(scale, scale, 1);
+  scene.add(sprite);
+
+  const radius = 16 + (i % 3) * 6;
+  const angle  = (i / TECH_BADGES.length) * Math.PI * 2;
+  const height = ((i % 4) - 1.5) * 6;
+
+  const lineGeo = new THREE.BufferGeometry().setFromPoints([techCore, techCore]);
+  const lineMat = new THREE.LineBasicMaterial({
+    color: badge.color,
+    transparent: true,
+    opacity: 0.22,
+  });
+  const line = new THREE.Line(lineGeo, lineMat);
+  scene.add(line);
+
+  const packetMat = new THREE.MeshBasicMaterial({ color: badge.color, transparent: true, opacity: 0.9 });
+  const packet = new THREE.Mesh(packetGeo, packetMat);
+  scene.add(packet);
+
+  orbitNodes.push({
+    sprite,
+    line,
+    packet,
+    radius,
+    angle,
+    height,
+    speed: 0.06 + (i % 3) * 0.015,
+    packetOffset: Math.random() * Math.PI * 2,
+    packetSpeed: 0.6 + Math.random() * 0.4,
+  });
+});
 
 /* =============================================
    MOUSE TRACKING
@@ -239,6 +340,34 @@ function animate() {
     mesh.rotation.x += speed;
     mesh.rotation.y += speed * 1.4;
     mesh.position.y += Math.sin(t + offset) * 0.008;
+  });
+
+  /* Tech-stack orbit — badges circling the core, wired in with
+     pulsing "data packets" to suggest live API traffic */
+  orbitNodes.forEach((node) => {
+    const a = node.angle + t * node.speed;
+    const x = Math.cos(a) * node.radius;
+    const z = Math.sin(a) * node.radius;
+    const y = node.height + Math.sin(t * 0.5 + node.packetOffset) * 1.4;
+
+    node.sprite.position.set(x, y, z);
+    const pulse = 1 + Math.sin(t * 1.6 + node.packetOffset) * 0.08;
+    node.sprite.scale.set(4.4 * pulse, 4.4 * pulse, 1);
+
+    const dx = x - techCore.x, dy = y - techCore.y, dz = z - techCore.z;
+    const dist = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1;
+    const pullBack = 1.8 / dist;
+    const endX = x - dx * pullBack;
+    const endY = y - dy * pullBack;
+    const endZ = z - dz * pullBack;
+
+    const positions = node.line.geometry.attributes.position.array;
+    positions[0] = techCore.x; positions[1] = techCore.y; positions[2] = techCore.z;
+    positions[3] = endX;       positions[4] = endY;       positions[5] = endZ;
+    node.line.geometry.attributes.position.needsUpdate = true;
+
+    const pt = (Math.sin(t * node.packetSpeed + node.packetOffset) + 1) / 2;
+    node.packet.position.set(techCore.x + (x - techCore.x) * pt, techCore.y + (y - techCore.y) * pt, techCore.z + (z - techCore.z) * pt);
   });
 
   /* Orbiting lights */

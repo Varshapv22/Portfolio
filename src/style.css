@@ -401,9 +401,57 @@ body {
    SERVICES SECTION
    ============================================= */
 .services {
+  position: relative;
   padding: 8rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+/* FLOATING SKILL BUBBLES */
+.skills-bubbles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.skill-bubble {
+  position: absolute;
+  left: var(--x, 50%);
+  top: 100%;
+  width: var(--size, 52px);
+  height: var(--size, 52px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--tint, var(--cyan)) 35%, transparent);
+  color: var(--tint, var(--cyan));
+  opacity: 0;
+  animation: bubbleFloat var(--dur, 12s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+.skill-bubble svg {
+  width: 46%;
+  height: 46%;
+  filter: drop-shadow(0 0 6px var(--tint, var(--cyan)));
+}
+
+@keyframes bubbleFloat {
+  0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.9; }
+  50%  { transform: translateY(-55vh) translateX(16px) rotate(10deg); }
+  90%  { opacity: 0.85; }
+  100% { transform: translateY(-115vh) translateX(-14px) rotate(-8deg); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skill-bubble { animation: none; opacity: 0.6; top: 40%; }
 }
 
 .section-header {
