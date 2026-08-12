@@ -57,6 +57,12 @@
   letter-spacing: 0.02em;
 }
 
+.hud-item .gradient-text {
+  background: none;
+  -webkit-text-fill-color: var(--cyan);
+  color: var(--cyan);
+}
+
 /* Game Modals */
 .game-modal {
   position: fixed;

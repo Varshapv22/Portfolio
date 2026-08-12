@@ -375,117 +375,59 @@ pathTube.position.y = 0.3;
 scene.add(pathTube);
 
 /* =============================================
-   BOAT
+   WALK ANCHOR
+   Invisible 3D position marker the girl (2D HUD
+   sprite) is projected onto each frame, plus the
+   glowing light-circle she walks on and the warm
+   lantern glow that lights her path.
    ============================================= */
-function buildBoat() {
+function buildWalkAnchor() {
   const group = new THREE.Group();
 
-  // Hull
-  const hullGeo = new THREE.BoxGeometry(5, 1.2, 2.2);
-  const hullMat = new THREE.MeshPhongMaterial({ color: 0x5c3d2e, shininess: 60 });
-  const hull    = new THREE.Mesh(hullGeo, hullMat);
-  hull.position.y = 0.6;
-  hull.castShadow = true;
-  group.add(hull);
-
-  // White trim stripe
-  const trimGeo = new THREE.BoxGeometry(5.1, 0.15, 2.3);
-  const trimMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
-  const trim    = new THREE.Mesh(trimGeo, trimMat);
-  trim.position.y = 1.15;
-  group.add(trim);
-
-  // Deck
-  const deckGeo = new THREE.BoxGeometry(4.7, 0.12, 2.0);
-  const deckMat = new THREE.MeshPhongMaterial({ color: 0xa0704a, shininess: 40 });
-  const deck    = new THREE.Mesh(deckGeo, deckMat);
-  deck.position.y = 1.25;
-  deck.castShadow = true;
-  group.add(deck);
-
-  // Cabin
-  const cabinGeo = new THREE.BoxGeometry(1.8, 1.0, 1.6);
-  const cabinMat = new THREE.MeshPhongMaterial({ color: 0xf0ece4 });
-  const cabin    = new THREE.Mesh(cabinGeo, cabinMat);
-  cabin.position.set(-0.6, 1.8, 0);
-  cabin.castShadow = true;
-  group.add(cabin);
-
-  // Cabin roof
-  const roofGeo = new THREE.BoxGeometry(2.0, 0.12, 1.8);
-  const roofMat = new THREE.MeshPhongMaterial({ color: 0x5c3d2e });
-  const roof    = new THREE.Mesh(roofGeo, roofMat);
-  roof.position.set(-0.6, 2.36, 0);
-  group.add(roof);
-
-  // Mast
-  const mastGeo = new THREE.CylinderGeometry(0.07, 0.09, 7, 8);
-  const mastMat = new THREE.MeshPhongMaterial({ color: 0x6b4c36 });
-  const mast    = new THREE.Mesh(mastGeo, mastMat);
-  mast.position.set(1.0, 4.85, 0);
-  mast.castShadow = true;
-  group.add(mast);
-
-  // Main sail (triangle)
-  const sailShape = new THREE.Shape();
-  sailShape.moveTo(0, 0);
-  sailShape.lineTo(3.0, 0);
-  sailShape.lineTo(0, 5.5);
-  sailShape.closePath();
-  const sailGeo = new THREE.ShapeGeometry(sailShape);
-  const sailMat = new THREE.MeshPhongMaterial({
-    color: 0xf5f0e8,
-    side: THREE.DoubleSide,
+  // Soft glowing circle of light on the water beneath her feet
+  const glowGeo = new THREE.RingGeometry(0.1, 2.4, 32);
+  const glowMat = new THREE.MeshBasicMaterial({
+    color: 0x8fe9ff,
     transparent: true,
-    opacity: 0.95,
-    shininess: 20,
+    opacity: 0.32,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    side: THREE.DoubleSide,
   });
-  const sail = new THREE.Mesh(sailGeo, sailMat);
-  sail.position.set(1.05, 1.35, 0.05);
-  sail.castShadow = true;
-  group.add(sail);
+  const glowCircle = new THREE.Mesh(glowGeo, glowMat);
+  glowCircle.rotation.x = -Math.PI / 2;
+  glowCircle.position.y = 0.08;
+  group.add(glowCircle);
 
-  // Boom (horizontal spar)
-  const boomGeo = new THREE.CylinderGeometry(0.05, 0.05, 3.5, 8);
-  const boomMat = new THREE.MeshPhongMaterial({ color: 0x6b4c36 });
-  const boom    = new THREE.Mesh(boomGeo, boomMat);
-  boom.rotation.z = Math.PI / 2;
-  boom.position.set(2.5, 1.45, 0);
-  group.add(boom);
+  // Crisp outer ring outline
+  const ringGeo = new THREE.RingGeometry(2.3, 2.55, 40);
+  const ringMat = new THREE.MeshBasicMaterial({
+    color: 0xbdf4ff,
+    transparent: true,
+    opacity: 0.5,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.rotation.x = -Math.PI / 2;
+  ring.position.y = 0.09;
+  group.add(ring);
 
-  // Flag at mast top
-  const flagGeo = new THREE.PlaneGeometry(0.8, 0.5);
-  const flagMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff, side: THREE.DoubleSide });
-  const flag    = new THREE.Mesh(flagGeo, flagMat);
-  flag.position.set(1.45, 8.4, 0);
-  group.add(flag);
+  // Lantern glow beside her (warm point light)
+  const lanternLight = new THREE.PointLight(0xffcc66, 4.5, 20);
+  lanternLight.position.set(-1.6, 2.2, 0);
+  group.add(lanternLight);
 
-  // Lantern (warm point light)
-  const lanternGeo = new THREE.SphereGeometry(0.2, 8, 8);
-  const lanternMat = new THREE.MeshBasicMaterial({ color: 0xffcc44 });
-  const lantern    = new THREE.Mesh(lanternGeo, lanternMat);
-  lantern.position.set(-1.8, 2.0, 0);
-  group.add(lantern);
+  // Soft guiding light a step ahead, in her direction of travel
+  const guideLight = new THREE.PointLight(0x66e0ff, 2.5, 14);
+  guideLight.position.set(2.2, 1.6, 0);
+  group.add(guideLight);
 
-  const boatLight = new THREE.PointLight(0xffcc44, 4, 18);
-  boatLight.position.set(-1.8, 2.0, 0);
-  group.add(boatLight);
-
-  // Front bow light (cyan — navigation light)
-  const bowLightGeo = new THREE.SphereGeometry(0.15, 8, 8);
-  const bowLightMat = new THREE.MeshBasicMaterial({ color: 0x00ffcc });
-  const bowLight    = new THREE.Mesh(bowLightGeo, bowLightMat);
-  bowLight.position.set(2.5, 1.4, 0);
-  group.add(bowLight);
-
-  const bowPointLight = new THREE.PointLight(0x00ffcc, 2, 12);
-  bowPointLight.position.set(2.5, 1.4, 0);
-  group.add(bowPointLight);
-
-  return { group, flag };
+  return { group, glowCircle, ring };
 }
 
-const { group: boatGroup, flag: boatFlag } = buildBoat();
+const { group: boatGroup, glowCircle: girlGlowCircle, ring: girlGlowRing } = buildWalkAnchor();
 scene.add(boatGroup);
 
 /* =============================================
@@ -834,6 +776,432 @@ function animateWaves(t) {
 }
 
 /* =============================================
+   GIRL CHARACTER SYSTEM
+   Grows from baby → 25-year-old across all milestones
+   ============================================= */
+
+const GIRL_STAGES = [
+  {
+    age: 0,
+    label: 'Baby Varsha',
+    color: '#FFB6C1',
+    glow: 'rgba(255,182,193,0.55)',
+    width: 50,
+    svg: `<svg viewBox="0 0 60 110" xmlns="http://www.w3.org/2000/svg" class="girl-char-svg">
+      <circle cx="30" cy="24" r="14" fill="#F5C5A3"/>
+      <path d="M22 14 Q30 7 38 14" stroke="#3D2314" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M17 36 Q30 30 43 36 Q48 51 43 65 Q30 73 17 65 Q12 51 17 36 Z" fill="#FFB6C1"/>
+      <path d="M18 58 Q30 64 42 58" stroke="white" stroke-width="2" fill="none" opacity="0.5"/>
+      <g class="girl-crawl-a">
+        <path d="M17 40 Q10 48 11 58" stroke="#F5C5A3" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <circle cx="11" cy="59" r="3.3" fill="#F5C5A3"/>
+      </g>
+      <g class="girl-crawl-b">
+        <path d="M43 40 Q50 48 49 58" stroke="#F5C5A3" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <circle cx="49" cy="59" r="3.3" fill="#F5C5A3"/>
+      </g>
+      <g class="girl-crawl-b">
+        <path d="M22 65 Q18 75 20 86" stroke="#F5C5A3" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <ellipse cx="20" cy="88" rx="5" ry="3.3" fill="#FFB6C1"/>
+      </g>
+      <g class="girl-crawl-a">
+        <path d="M38 65 Q42 75 40 86" stroke="#F5C5A3" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <ellipse cx="40" cy="88" rx="5" ry="3.3" fill="#FFB6C1"/>
+      </g>
+    </svg>`
+  },
+  {
+    age: 14,
+    label: 'Little Varsha',
+    color: '#6EC6F5',
+    glow: 'rgba(110,198,245,0.5)',
+    width: 56,
+    svg: `<svg viewBox="0 0 60 110" xmlns="http://www.w3.org/2000/svg" class="girl-char-svg">
+      <circle cx="30" cy="26" r="13" fill="#2C1810"/>
+      <path d="M16 24 Q14 32 17 38 Q19 30 18 24 Z" fill="#2C1810"/>
+      <path d="M44 24 Q46 32 43 38 Q41 30 42 24 Z" fill="#2C1810"/>
+      <circle cx="14" cy="31" r="4" fill="#2C1810"/>
+      <path d="M14 34 Q11 43 13 51" stroke="#2C1810" stroke-width="4" fill="none" stroke-linecap="round" class="girl-hair-wind"/>
+      <circle cx="46" cy="31" r="4" fill="#2C1810"/>
+      <path d="M46 34 Q49 43 47 51" stroke="#2C1810" stroke-width="4" fill="none" stroke-linecap="round" class="girl-hair-wind"/>
+      <path d="M20 36 Q30 32 40 36 L42 56 Q42 60 30 60 Q18 60 18 56 Z" fill="#6EC6F5"/>
+      <path d="M27 38 L30 41 L33 38 L33 42 L30 44 L27 42 Z" fill="white" opacity="0.6"/>
+      <g class="girl-arm-l">
+        <path d="M19 38 Q13 46 16 56" stroke="#F5C5A3" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+        <circle cx="16" cy="57" r="3" fill="#F5C5A3"/>
+      </g>
+      <g class="girl-arm-r">
+        <path d="M41 38 Q47 46 44 56" stroke="#F5C5A3" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+        <circle cx="44" cy="57" r="3" fill="#F5C5A3"/>
+      </g>
+      <rect x="22" y="60" width="7" height="30" rx="3.5" fill="#F5C5A3" class="girl-leg-l"/>
+      <rect x="31" y="60" width="7" height="30" rx="3.5" fill="#F5C5A3" class="girl-leg-r"/>
+      <rect x="21" y="86" width="9" height="4" rx="2" fill="#F5F5F5" opacity="0.85"/>
+      <rect x="30" y="86" width="9" height="4" rx="2" fill="#F5F5F5" opacity="0.85"/>
+      <ellipse cx="25" cy="93" rx="8" ry="4.3" fill="#3E7CB8"/>
+      <ellipse cx="35" cy="93" rx="8" ry="4.3" fill="#3E7CB8"/>
+    </svg>`
+  },
+  {
+    age: 17,
+    label: 'Teen Varsha',
+    color: '#B5A3F5',
+    glow: 'rgba(181,163,245,0.5)',
+    width: 60,
+    svg: `<svg viewBox="0 0 60 110" xmlns="http://www.w3.org/2000/svg" class="girl-char-svg">
+      <circle cx="30" cy="24" r="12.5" fill="#2C1810"/>
+      <path d="M16 22 Q13 32 18 40 Q20 30 18 22 Z" fill="#2C1810"/>
+      <path d="M44 22 Q47 32 42 40 Q40 30 42 22 Z" fill="#2C1810" class="girl-hair-wind"/>
+      <path d="M14 24 Q7 34 10 50 Q14 40 15 30 Z" fill="#2C1810" class="girl-hair-wind"/>
+      <path d="M20 36 Q30 32 40 36 L42 56 Q42 60 30 60 Q18 60 18 56 Z" fill="#B5A3F5"/>
+      <path d="M30 38 L30 58" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+      <g class="girl-arm-l">
+        <path d="M19 38 Q13 46 16 57" stroke="#F5C5A3" stroke-width="5.3" fill="none" stroke-linecap="round"/>
+        <circle cx="16" cy="58" r="3" fill="#F5C5A3"/>
+      </g>
+      <g class="girl-arm-r">
+        <path d="M41 38 Q47 46 44 57" stroke="#F5C5A3" stroke-width="5.3" fill="none" stroke-linecap="round"/>
+        <circle cx="44" cy="58" r="3" fill="#F5C5A3"/>
+      </g>
+      <rect x="22" y="60" width="7" height="32" rx="3.5" fill="#F5C5A3" class="girl-leg-l"/>
+      <rect x="31" y="60" width="7" height="32" rx="3.5" fill="#F5C5A3" class="girl-leg-r"/>
+      <ellipse cx="25" cy="95" rx="8" ry="4.3" fill="#6B4FA0"/>
+      <ellipse cx="35" cy="95" rx="8" ry="4.3" fill="#6B4FA0"/>
+    </svg>`
+  },
+  {
+    age: 20,
+    label: 'Student Varsha',
+    color: '#78C5A3',
+    glow: 'rgba(120,197,163,0.5)',
+    width: 62,
+    svg: `<svg viewBox="0 0 60 110" xmlns="http://www.w3.org/2000/svg" class="girl-char-svg">
+      <circle cx="30" cy="23" r="12" fill="#2C1810"/>
+      <path d="M15 21 Q12 31 17 39 Q19 29 17 21 Z" fill="#2C1810"/>
+      <path d="M45 21 Q48 31 43 39 Q41 29 43 21 Z" fill="#2C1810" class="girl-hair-wind"/>
+      <circle cx="30" cy="34" r="3.2" fill="#2C1810"/>
+      <path d="M30 37 Q26 46 30 56 Q34 46 30 37" fill="#2C1810" class="girl-hair-wind"/>
+      <path d="M20 34 Q30 30 40 34 L42 56 Q42 60 30 60 Q18 60 18 56 Z" fill="#78C5A3"/>
+      <rect x="23" y="39" width="14" height="15" rx="3" fill="#2E5B44" opacity="0.85"/>
+      <path d="M22 34 L20 50" stroke="#3A6B50" stroke-width="2" stroke-linecap="round"/>
+      <path d="M38 34 L40 50" stroke="#3A6B50" stroke-width="2" stroke-linecap="round"/>
+      <g class="girl-arm-l">
+        <path d="M19 36 Q13 46 16 57" stroke="#F5C5A3" stroke-width="5.2" fill="none" stroke-linecap="round"/>
+        <circle cx="16" cy="58" r="3" fill="#F5C5A3"/>
+      </g>
+      <g class="girl-arm-r">
+        <path d="M41 36 Q47 46 44 57" stroke="#F5C5A3" stroke-width="5.2" fill="none" stroke-linecap="round"/>
+        <circle cx="44" cy="58" r="3" fill="#F5C5A3"/>
+      </g>
+      <rect x="22" y="60" width="7" height="32" rx="3.5" fill="#F5C5A3" class="girl-leg-l"/>
+      <rect x="31" y="60" width="7" height="32" rx="3.5" fill="#F5C5A3" class="girl-leg-r"/>
+      <ellipse cx="25" cy="95" rx="8" ry="4.3" fill="#2E5B44"/>
+      <ellipse cx="35" cy="95" rx="8" ry="4.3" fill="#2E5B44"/>
+    </svg>`
+  },
+  {
+    age: 21,
+    label: 'Coder Varsha',
+    color: '#F5A63B',
+    glow: 'rgba(245,166,59,0.5)',
+    width: 64,
+    svg: `<svg viewBox="0 0 60 110" xmlns="http://www.w3.org/2000/svg" class="girl-char-svg">
+      <circle cx="30" cy="24" r="11.5" fill="#2C1810"/>
+      <path d="M18 22 Q15 30 19 37 Q21 28 19 22 Z" fill="#2C1810"/>
+      <path d="M42 22 Q45 30 41 37 Q39 28 41 22 Z" fill="#2C1810"/>
+      <circle cx="30" cy="11" r="4.5" fill="#2C1810"/>
+      <path d="M25 13 Q30 9 35 13" stroke="#2C1810" stroke-width="2" fill="none"/>
+      <path d="M19 35 Q30 31 41 35 L41 58 Q41 62 30 62 Q19 62 19 58 Z" fill="#F5A63B"/>
+      <path d="M22 35 Q26 40 22 46 Q28 43 30 40 Q32 43 38 46 Q34 40 38 35 Q34 38 30 39 Q26 38 22 35" fill="#D9891F" opacity="0.55"/>
+      <text x="24" y="55" font-size="6" fill="rgba(255,255,255,0.5)" font-family="monospace">&lt;/&gt;</text>
+      <g class="girl-arm-l">
+        <path d="M18 37 Q12 47 15 58" stroke="#F5C5A3" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <circle cx="15" cy="59" r="3" fill="#F5C5A3"/>
+      </g>
+      <g class="girl-arm-r">
+        <path d="M42 37 Q48 47 45 58" stroke="#F5C5A3" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <circle cx="45" cy="59" r="3" fill="#F5C5A3"/>
+      </g>
+      <rect x="22" y="61" width="7" height="31" rx="3.5" fill="#22252B" class="girl-leg-l"/>
+      <rect x="31" y="61" width="7" height="31" rx="3.5" fill="#22252B" class="girl-leg-r"/>
+      <ellipse cx="25" cy="95" rx="8" ry="4.3" fill="#EDEDED"/>
+      <ellipse cx="35" cy="95" rx="8" ry="4.3" fill="#EDEDED"/>
+    </svg>`
+  },
+  {
+    age: 22,
+    label: 'Certified Varsha',
+    color: '#FFD700',
+    glow: 'rgba(255,215,0,0.55)',
+    width: 66,
+    svg: `<svg viewBox="0 0 60 110" xmlns="http://www.w3.org/2000/svg" class="girl-char-svg">
+      <circle cx="30" cy="23" r="12" fill="#2C1810"/>
+      <path d="M17 21 Q14 31 19 39 Q21 29 19 21 Z" fill="#2C1810"/>
+      <path d="M43 21 Q46 31 41 39 Q39 29 41 21 Z" fill="#2C1810" class="girl-hair-wind"/>
+      <path d="M15 25 Q13 45 15 62 Q18 44 19 27 Z" fill="#2C1810"/>
+      <path d="M45 25 Q47 45 45 62 Q42 44 41 27 Z" fill="#2C1810" class="girl-hair-wind"/>
+      <path d="M26 11 L30 14 L34 11 L34 15 L30 17 L26 15 Z" fill="#FFD700" opacity="0.85"/>
+      <path d="M19 34 Q30 30 41 34 L41 56 Q41 60 30 60 Q19 60 19 56 Z" fill="#F5F5F5"/>
+      <path d="M30 40 L30 58" stroke="#ddd" stroke-width="1"/>
+      <g class="girl-arm-l">
+        <path d="M18 36 Q12 46 15 57" stroke="#F5C5A3" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <circle cx="15" cy="58" r="3" fill="#F5C5A3"/>
+      </g>
+      <g class="girl-arm-r">
+        <path d="M42 36 Q48 46 45 57" stroke="#F5C5A3" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <circle cx="45" cy="58" r="3" fill="#F5C5A3"/>
+      </g>
+      <rect x="22" y="60" width="7" height="32" rx="3.5" fill="#2B2B40" class="girl-leg-l"/>
+      <rect x="31" y="60" width="7" height="32" rx="3.5" fill="#2B2B40" class="girl-leg-r"/>
+      <ellipse cx="25" cy="95" rx="8" ry="4.3" fill="#3A3A5C"/>
+      <ellipse cx="35" cy="95" rx="8" ry="4.3" fill="#3A3A5C"/>
+    </svg>`
+  },
+  {
+    age: 23,
+    label: 'Dev Varsha',
+    color: '#00CED1',
+    glow: 'rgba(0,206,209,0.5)',
+    width: 68,
+    svg: `<svg viewBox="0 0 60 110" xmlns="http://www.w3.org/2000/svg" class="girl-char-svg">
+      <circle cx="30" cy="22" r="11.5" fill="#2C1810"/>
+      <path d="M16 20 Q13 30 18 37 Q20 27 18 20 Z" fill="#2C1810"/>
+      <path d="M44 20 Q47 30 42 37 Q40 27 42 20 Z" fill="#2C1810" class="girl-hair-wind"/>
+      <circle cx="30" cy="9" r="4" fill="#2C1810"/>
+      <path d="M15 24 Q13 42 15 58 Q18 42 19 26 Z" fill="#2C1810"/>
+      <path d="M45 24 Q47 42 45 58 Q42 42 41 26 Z" fill="#2C1810" class="girl-hair-wind"/>
+      <path d="M19 33 Q30 29 41 33 L41 55 Q41 59 30 59 Q19 59 19 55 Z" fill="#00CED1"/>
+      <path d="M20 33 L40 58" stroke="#0A6E73" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+      <g class="girl-arm-l">
+        <path d="M18 35 Q12 45 14 57" stroke="#F5C5A3" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <circle cx="14" cy="58" r="3" fill="#F5C5A3"/>
+      </g>
+      <g class="girl-arm-r">
+        <path d="M42 35 Q48 45 46 57" stroke="#F5C5A3" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <circle cx="46" cy="58" r="3" fill="#F5C5A3"/>
+      </g>
+      <rect x="22" y="59" width="7" height="33" rx="3.5" fill="#16303A" class="girl-leg-l"/>
+      <rect x="31" y="59" width="7" height="33" rx="3.5" fill="#16303A" class="girl-leg-r"/>
+      <ellipse cx="25" cy="95" rx="8" ry="4.3" fill="#1A2840"/>
+      <ellipse cx="35" cy="95" rx="8" ry="4.3" fill="#1A2840"/>
+    </svg>`
+  },
+  {
+    age: 24,
+    label: 'Engineer Varsha',
+    color: '#7B2FFF',
+    glow: 'rgba(123,47,255,0.55)',
+    width: 70,
+    svg: `<svg viewBox="0 0 60 110" xmlns="http://www.w3.org/2000/svg" class="girl-char-svg">
+      <circle cx="30" cy="22" r="11.5" fill="#2C1810"/>
+      <path d="M15 20 Q12 30 17 37 Q19 27 17 20 Z" fill="#2C1810"/>
+      <path d="M45 20 Q48 30 43 37 Q41 27 43 20 Z" fill="#2C1810" class="girl-hair-wind"/>
+      <path d="M14 23 Q11 42 13 62 Q16 42 18 25 Z" fill="#2C1810"/>
+      <path d="M46 23 Q49 42 47 62 Q44 42 42 25 Z" fill="#2C1810" class="girl-hair-wind"/>
+      <path d="M19 32 Q30 28 41 32 L41 55 Q41 59 30 59 Q19 59 19 55 Z" fill="#7B2FFF"/>
+      <path d="M30 38 L30 57" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+      <g class="girl-arm-l">
+        <path d="M17 34 Q11 44 14 57" stroke="#F5C5A3" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <circle cx="14" cy="58" r="3" fill="#F5C5A3"/>
+      </g>
+      <g class="girl-arm-r">
+        <path d="M43 34 Q49 44 46 57" stroke="#F5C5A3" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <circle cx="46" cy="58" r="3" fill="#F5C5A3"/>
+      </g>
+      <rect x="22" y="59" width="7" height="33" rx="3.5" fill="#241640" class="girl-leg-l"/>
+      <rect x="31" y="59" width="7" height="33" rx="3.5" fill="#241640" class="girl-leg-r"/>
+      <ellipse cx="25" cy="95" rx="8" ry="4.3" fill="#3C1888"/>
+      <ellipse cx="35" cy="95" rx="8" ry="4.3" fill="#3C1888"/>
+    </svg>`
+  },
+  {
+    age: 25,
+    label: 'Varsha',
+    color: '#FFD700',
+    glow: 'rgba(255,215,0,0.65)',
+    width: 74,
+    svg: `<svg viewBox="0 0 60 110" xmlns="http://www.w3.org/2000/svg" class="girl-char-svg">
+      <defs>
+        <linearGradient id="dresGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#FFD700"/>
+          <stop offset="100%" stop-color="#FF6B9D"/>
+        </linearGradient>
+        <linearGradient id="hairGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3D2314"/>
+          <stop offset="100%" stop-color="#5A3620"/>
+        </linearGradient>
+      </defs>
+      <circle cx="30" cy="21" r="11" fill="url(#hairGrad)"/>
+      <path d="M16 15 Q30 5 44 15 Q46 24 40 29 Q30 25 20 29 Q14 24 16 15 Z" fill="url(#hairGrad)"/>
+      <ellipse cx="30" cy="9" rx="7.5" ry="5.5" fill="url(#hairGrad)"/>
+      <path d="M24 8 Q30 5 36 8" stroke="#2A1710" stroke-width="1" fill="none" opacity="0.4"/>
+      <path d="M16 18 Q12 27 16 35" stroke="url(#hairGrad)" stroke-width="3" fill="none" stroke-linecap="round" class="girl-hair-wind"/>
+      <path d="M44 18 Q48 27 44 35" stroke="url(#hairGrad)" stroke-width="3" fill="none" stroke-linecap="round" class="girl-hair-wind"/>
+      <circle cx="30" cy="28" r="1.3" fill="#FFD700"/>
+      <path d="M27 27 Q30 29.5 33 27" stroke="#FFD700" stroke-width="0.8" fill="none" opacity="0.7"/>
+      <path d="M19 32 Q30 28 41 32 L39 44 Q30 41 21 44 Z" fill="url(#dresGrad)"/>
+      <path d="M21 44 Q30 47.5 39 44 L42 60 Q42 64 30 64 Q18 64 18 60 Z" fill="url(#dresGrad)"/>
+      <path d="M21 44 Q30 47.5 39 44" stroke="rgba(255,255,255,0.4)" stroke-width="1.2" fill="none"/>
+      <path d="M27 45.5 L30 48.5 L33 45.5 L33 50.5 L30 52.5 L27 50.5 Z" fill="white" opacity="0.6"/>
+      <path d="M5 57 L10 55 L8 60 Z" fill="#FFD700" opacity="0.8"/>
+      <path d="M52 59 L57 57 L55 62 Z" fill="#FF6B9D" opacity="0.8"/>
+      <g class="girl-arm-l">
+        <path d="M17 34 Q11 44 14 57" stroke="#F5C5A3" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <circle cx="14" cy="58" r="3" fill="#F5C5A3"/>
+      </g>
+      <g class="girl-arm-r">
+        <path d="M43 34 Q49 44 46 57" stroke="#F5C5A3" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <circle cx="46" cy="58" r="3" fill="#F5C5A3"/>
+      </g>
+      <rect x="21" y="64" width="8" height="33" rx="4" fill="#F5C5A3" class="girl-leg-l"/>
+      <rect x="31" y="64" width="8" height="33" rx="4" fill="#F5C5A3" class="girl-leg-r"/>
+      <ellipse cx="25" cy="98" rx="8.5" ry="4.5" fill="#C0394F"/>
+      <ellipse cx="35" cy="98" rx="8.5" ry="4.5" fill="#C0394F"/>
+    </svg>`
+  },
+];
+
+/* ---- DOM refs for girl ---- */
+const girlWrapper     = document.getElementById('girlWrapper');
+const girlContainer   = document.getElementById('girlContainer');
+const girlChar        = document.getElementById('girlChar');
+const girlAgeNum      = document.getElementById('girlAgeNum');
+const girlNameTag     = document.getElementById('girlNameTag');
+const girlGrowthRing  = document.getElementById('girlGrowthRing');
+const girlSparkleBurst = document.getElementById('girlSparkleBurst');
+
+let girlCurrentStage = -1;
+
+/* Project world position to screen */
+const _girlVec = new THREE.Vector3();
+
+function getBoatScreenPos() {
+  // Her standing position in world space (on the glowing water circle)
+  _girlVec.copy(boatGroup.position);
+  _girlVec.y += 0.3; // stand on the water, just above the glow ring
+  _girlVec.project(camera);
+
+  const sx = (_girlVec.x *  0.5 + 0.5) * window.innerWidth;
+  const sy = (_girlVec.y * -0.5 + 0.5) * window.innerHeight;
+  return { sx, sy, behind: _girlVec.z >= 1 };
+}
+
+/* Fire sparkle particles */
+function fireSparkles(color) {
+  girlSparkleBurst.innerHTML = '';
+  const count = 14;
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'sparkle-particle';
+    const angle = (i / count) * Math.PI * 2;
+    const dist  = 40 + Math.random() * 40;
+    const sx    = Math.cos(angle) * dist;
+    const sy    = Math.sin(angle) * dist;
+    p.style.cssText = `
+      background: ${color};
+      box-shadow: 0 0 6px ${color};
+      --sx: ${sx}px;
+      --sy: ${sy}px;
+      animation-delay: ${Math.random() * 0.15}s;
+      width: ${4 + Math.random() * 4}px;
+      height: ${4 + Math.random() * 4}px;
+    `;
+    girlSparkleBurst.appendChild(p);
+  }
+}
+
+/* Fire growth ring */
+function fireGrowthRing(color) {
+  girlGrowthRing.style.setProperty('--ring-color', color);
+  girlGrowthRing.classList.remove('ring-burst');
+  void girlGrowthRing.offsetWidth; // reflow
+  girlGrowthRing.classList.add('ring-burst');
+}
+
+/* Switch to a new growth stage */
+function setGirlStage(idx) {
+  if (idx === girlCurrentStage) return;
+  girlCurrentStage = idx;
+
+  const stage = GIRL_STAGES[idx];
+
+  // Update SVG
+  girlChar.innerHTML = stage.svg;
+  // Set width to drive scale
+  const svgEl = girlChar.querySelector('svg');
+  if (svgEl) svgEl.style.width = stage.width + 'px';
+
+  // Update glow filter
+  girlChar.style.setProperty('--girl-glow', stage.glow);
+  girlChar.style.filter = `drop-shadow(0 8px 20px rgba(0,0,0,0.6)) drop-shadow(0 0 14px ${stage.glow})`;
+
+  // Update labels with pop animation
+  girlAgeNum.classList.remove('age-pop');
+  void girlAgeNum.offsetWidth;
+  girlAgeNum.textContent  = stage.age;
+  girlAgeNum.classList.add('age-pop');
+  girlNameTag.textContent = stage.label;
+
+  // Final stage special class
+  if (idx === GIRL_STAGES.length - 1) {
+    girlContainer.classList.add('stage-final');
+  } else {
+    girlContainer.classList.remove('stage-final');
+  }
+
+  // Baby crawls instead of walking — swap the bob timing to match
+  girlContainer.classList.toggle('stage-crawling', idx === 0);
+  girlNameTag.style.borderColor = stage.color + '55';
+  girlNameTag.style.boxShadow   = `0 0 12px ${stage.color}30`;
+  girlNameTag.style.color       = '#ffffff';
+
+  // Age badge color
+  document.querySelector('.girl-age-badge').style.borderColor = stage.color + '80';
+
+  // Growth effects (skip on initial load)
+  if (idx > 0) {
+    girlContainer.classList.remove('growing');
+    void girlContainer.offsetWidth;
+    girlContainer.classList.add('growing');
+    girlContainer.addEventListener('animationend', () => {
+      girlContainer.classList.remove('growing');
+    }, { once: true });
+
+    fireSparkles(stage.color);
+    fireGrowthRing(stage.color);
+  }
+}
+
+/* Map scroll progress → girl stage index */
+function getGirlStageIdx(t) {
+  // 9 milestones evenly mapped
+  for (let i = MILESTONES.length - 1; i >= 0; i--) {
+    if (t >= MILESTONES[i].t - 0.001) return i;
+  }
+  return 0;
+}
+
+/* Called every frame from animate() */
+function updateGirlCharacter(t) {
+  const { sx, sy, behind } = getBoatScreenPos();
+
+  if (behind) {
+    girlWrapper.style.opacity = '0';
+    return;
+  }
+
+  girlWrapper.style.opacity = '1';
+  girlWrapper.style.left = sx + 'px';
+  girlWrapper.style.top  = (sy - 6) + 'px'; // slightly above boat
+
+  const stageIdx = getGirlStageIdx(scrollProgress);
+  setGirlStage(stageIdx);
+}
+
+// Initialize first stage immediately
+setTimeout(() => setGirlStage(0), 300);
+
+/* =============================================
    MAIN CAMERA STATE
    ============================================= */
 const camTarget = new THREE.Vector3();
@@ -860,27 +1228,27 @@ function animate() {
     scrollHint.classList.add('hint-gone');
   }
 
-  /* ---- Boat position along curve ---- */
+  /* ---- Girl's position along curve ---- */
   const safeP  = Math.max(0, Math.min(progress, 0.9999));
   const boatPt = curve.getPoint(safeP);
   const tang   = curve.getTangent(safeP);
 
-  // Place boat on water surface (add wave height)
+  // Keep her light-circle on the water surface (add wave height)
   const waterY = Math.sin(boatPt.x * 0.06 + t * 0.9) * 1.2
                + Math.cos(boatPt.z * 0.05 + t * 0.7) * 0.8;
 
   boatGroup.position.set(boatPt.x, waterY, boatPt.z);
 
-  // Boat heading (face direction of travel)
+  // Face direction of travel
   const angle = Math.atan2(tang.x, tang.z);
   boatGroup.rotation.y = angle;
 
-  // Gentle roll & pitch with waves
-  boatGroup.rotation.z = Math.sin(t * 1.1) * 0.04;
-  boatGroup.rotation.x = Math.sin(t * 0.8 + 1.0) * 0.025;
-
-  // Flag animation
-  if (boatFlag) boatFlag.rotation.y = Math.sin(t * 3) * 0.4;
+  // Glowing walk-circle: slow spin + gentle pulse
+  girlGlowCircle.rotation.z = t * 0.3;
+  girlGlowRing.rotation.z   = -t * 0.18;
+  const glowPulse = 0.26 + 0.1 * Math.sin(t * 1.6);
+  girlGlowCircle.material.opacity = glowPulse;
+  girlGlowRing.material.opacity   = glowPulse + 0.2;
 
   /* ---- Wake trail ---- */
   if (Math.abs(progress - lastProg) > 0.001) {
@@ -930,12 +1298,15 @@ function animate() {
   const compassDeg = -angle * (180 / Math.PI);
   if (compassNeedle) compassNeedle.style.transform = `rotate(${compassDeg}deg)`;
 
+  /* ---- Girl character ---- */
+  updateGirlCharacter(t);
+
   renderer.render(scene, camera);
 }
 
 animate();
 
-/* Show initial milestone card (boat starts at island 0) */
+/* Show initial milestone card (journey starts at island 0) */
 setTimeout(() => { currentMilestoneIdx = -1; updateMilestoneCard(0); }, 600);
 
 /* =============================================
